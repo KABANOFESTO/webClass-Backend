@@ -1,23 +1,30 @@
-import passportJwt from 'passport-jwt'
-const JWTstrategy = passportJwt.Strategy;
-const ExtractJWT = passportJwt.ExtractJwt;
+import passportJwt from 'passport-jwt';
 import passport from 'passport';
 import User from '../models/userModel.js';
-var opts = {}
-opts.jwtFromRequest = ExtractJWT.fromAuthHeaderAsBearerToken();
-opts.secretOrKey = 'my-token-secret';
 
-passport.use(new JWTstrategy(opts, function (jwt_payload, done) {
-    // console.log(jwt_payload)
-    User.findOne({ _id: jwt_payload.id._id }, function (err, user) {
-        if (err) {
-            return done(err, false);
-        }
+const JWTstrategy = passportJwt.Strategy;
+const ExtractJWT = passportJwt.ExtractJwt;
+
+const opts = {
+    jwtFromRequest: ExtractJWT.fromAuthHeaderAsBearerToken(),
+    secretOrKey: 'my-token-secret'
+};
+
+passport.use(new JWTstrategy(opts, async (jwt_payload, done) => {
+    try {
+        // Destructure user id from jwt_payload
+        const userId = jwt_payload.id;
+
+        // Use await to handle the promise
+        const user = await User.findOne({ _id: userId }).exec();
+
         if (user) {
             return done(null, user);
         } else {
             return done(null, false);
-            // or you could create a new account
+            // Optionally, you could create a new account here if needed
         }
-    });
+    } catch (err) {
+        return done(err, false);
+    }
 }));

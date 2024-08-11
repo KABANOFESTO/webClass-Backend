@@ -58,7 +58,7 @@ router.post('/signup', async (req, res) => {
                 username: validationResult.username,
                 email: validationResult.email,
                 password: hashedPassword,
-                role: 'admin'
+                role: 'vistor'
             });
             await user.save();
             res.status(201).json({

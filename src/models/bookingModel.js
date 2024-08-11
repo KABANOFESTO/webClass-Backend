@@ -16,8 +16,8 @@ const bookingSchema = new mongoose.Schema({
     },
     destination: {
         type: String,
-        required: [true, 'Please select a destination'],
-        enum: ['Huye National Musium', /* Add other destination options */]
+        required: [true, 'Please select a destination']
+        // Removed the enum restriction
     },
     persons: {
         type: Number,

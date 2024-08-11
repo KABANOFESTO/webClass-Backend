@@ -15,20 +15,23 @@ const isAdmin = (req, res, next) => {
     }
 };
 
+// Middleware to check if user is authenticated
+const isAuthenticated = passport.authenticate("jwt", { session: false });
+
 // Route for visitors to create a booking
-router.post("/book", async (req, res) => {
+router.post('/book', async (req, res) => {
     try {
-        const validationResult = await bookingSchema.validateAsync(req.body);
-        const booking = new Booking(validationResult);
+        // Check if there's any custom validation here
+        const booking = new Booking(req.body);
         await booking.save();
-        res.status(201).json({ message: 'Booking created successfully', booking });
+        res.status(201).json(booking);
     } catch (error) {
         res.status(400).json({ error: error.message });
     }
 });
 
 // Route for admins to view all bookings
-router.get("/", passport.authenticate("jwt", { session: false }), isAdmin, async (req, res) => {
+router.get("/", isAuthenticated, isAdmin, async (req, res) => {
     try {
         const bookings = await Booking.find();
         res.json({ bookings });
@@ -38,7 +41,7 @@ router.get("/", passport.authenticate("jwt", { session: false }), isAdmin, async
 });
 
 // Route for admins to delete a booking
-router.delete("/:id", passport.authenticate("jwt", { session: false }), isAdmin, async (req, res) => {
+router.delete("/:id", isAuthenticated, isAdmin, async (req, res) => {
     try {
         const { id } = req.params;
         const result = await Booking.deleteOne({ _id: id });
